@@ -149,7 +149,7 @@ To explore this lab environment:
 1.  Ensure you have **Cisco Packet Tracer** (version 7.3 or higher recommended) installed.
 2.  Clone this repository to your local machine:
     ```bash
-    git clone [https://github.com/ihkokil/Cisco-Packet-Tracer-VLAN-Routing-Lab.git](https://github.com/ihkokil/Cisco-Packet-Tracer-VLAN-Routing-Lab.git)
+    git clone https://github.com/ihkokil/Cisco-Packet-Tracer-VLAN-Routing-Lab.git
     ```
 3.  Navigate to the project directory and open the `CISCO-Network.pkt` file.
 
