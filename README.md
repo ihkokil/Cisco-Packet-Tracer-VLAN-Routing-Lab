@@ -127,3 +127,91 @@ interface GigabitEthernet0/0.30
 interface GigabitEthernet0/0.99
  encapsulation dot1Q 99
  ip address 192.168.99.1 255.255.255.0
+```
+
+#### 2. DHCP Pool Configuration (Example: Router0)
+
+DHCP pools are defined for each departmental VLAN to automate IP address allocation. Specific IP addresses or ranges are marked as excluded to reserve them for static assignments (e.g., servers, printers, or management devices).
+
+```cisco
+! DHCP Excluded Addresses for VLAN 10 (Sales)
+ip dhcp excluded-address 192.168.10.1 192.168.10.9
+ip dhcp excluded-address 192.168.10.100 ! Reserved for Server0
+
+! DHCP Pool Definition for VLAN 10 (Sales)
+ip dhcp pool VLAN10_SALES
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 8.8.8.8 ! Example DNS server address
+
+! Example DHCP Pool for VLAN 20 (Marketing)
+ip dhcp pool VLAN20_MARKETING
+ network 192.168.20.0 255.255.255.0
+ default-router 192.168.20.1
+
+! ... (Similar DHCP pool configurations would exist for VLAN 30 and VLAN 99) ...
+```
+
+#### 3. Switch Trunk Port Configuration (Example: Switch0)
+
+The switch interface that connects to the central router is configured as a trunk port. This is essential for allowing traffic from multiple VLANs to traverse this link using 802.1Q tagging.
+
+```cisco
+interface GigabitEthernet0/1
+ description Trunk link to Router0
+ switchport mode trunk
+```
+
+#### 4. Switch Access Port & Security (Example: Switch0)
+
+Access ports are configured to belong to a specific VLAN for end devices. `Port Security` is applied to restrict the MAC addresses allowed on a port, enhancing security against unauthorized device connections. `mac-address sticky` automatically learns and stores the MAC address of the first connected device, while `violation shutdown` immediately disables the port if a security violation occurs.
+
+```cisco
+interface FastEthernet0/2
+ description Access port for Sales PC
+ switchport mode access
+ switchport access vlan 10
+ switchport port-security
+ switchport port-security mac-address sticky
+ switchport port-security maximum 1 ! Configure to allow only one MAC address
+ switchport port-security violation shutdown
+```
+
+---
+
+## 🚀 Getting Started
+
+To explore and test this lab environment:
+
+1.  Ensure you have **Cisco Packet Tracer** (version 7.3 or higher recommended) installed on your system.
+2.  Clone this repository to your local machine:
+    ```bash
+    git clone https://github.com/ihkokil/Cisco-Packet-Tracer-VLAN-Routing-Lab.git
+    ```
+3.  Navigate to the project directory. Open the Packet Tracer simulation file (e.g., `CISCO-Network.pkt`). You might need to rename this file if it has a different name within the cloned repository (e.g., `XYZ-Network.pkt`).
+
+---
+
+## ✅ Validation & Testing
+
+You can confirm the network's functionality by executing the following commands from the Command Prompt of any PC within the simulation:
+
+1.  **Verify DHCP Allocation:** Check if the PC has successfully received a valid IP address, subnet mask, and default gateway from its VLAN's assigned DHCP pool.
+    ```bash
+    ipconfig
+    ```
+2.  **Test Intra-VLAN Connectivity (Same Department):** Ensure devices within the same VLAN can communicate directly. For example, ping a PC in VLAN 10 from another PC in VLAN 10.
+    ```bash
+    ping 192.168.10.11  ! Example: Ping from PC in VLAN 10 to another PC in VLAN 10
+    ```
+3.  **Test Inter-VLAN Connectivity (Cross-Department):** Verify that devices in different VLANs can communicate with each other via the router. For example, ping a device in VLAN 20 from a PC in VLAN 10.
+    ```bash
+    ping 192.168.20.10   ! Example: Ping from PC in VLAN 10 to PC in VLAN 20
+    ```
+    *(Note: The first ping attempt to a new destination may fail due to ARP resolution delays. Subsequent pings should succeed).*
+4.  **Test Connectivity to Server:** Ping the central server from any department's PC to ensure network-wide accessibility to shared resources.
+    ```bash
+    ping 192.168.10.100 ! Example: Ping Server0 from any PC in any VLAN
+    ```
+
+Successful responses to all these tests confirm that the network segmentation, inter-VLAN routing, dynamic IP address management, and basic Layer 2 security measures are functioning correctly as per the design objectives.
